@@ -31,7 +31,9 @@ void Matrix::set(){   //set each element with user input
             }
         }
     }
-    cerr << "Invalid matrix dimensions." <<endl;
+    else{
+        cerr << "Invalid matrix dimensions." << endl;
+    }
 }
 
 void Matrix::set(int m,int n,double val){
@@ -78,37 +80,38 @@ void Matrix::save(string filename){
 }
 
 void Matrix::load(string filename) {
-    ifstream loadf(filename);  // Input file stream
+    ifstream loadf(filename);  
 
     if (loadf.is_open()) {
         cout << "File successfully opened." << endl;
         cout << "Reading from " << filename << "." << endl;
 
-        vector<vector<double>> temp; // Temporary storage for the matrix
+        vector<vector<double>> temp; //temporary storage for the matrix
         string line;
 
-        while (getline(loadf, line)) { // Read line by line
-            stringstream s(line);      // Create a stringstream for the current line
-            vector<double> row;       // Temporary vector for the row
+        while (getline(loadf, line)) { //read line by line
+            stringstream s(line);      //create a stringstream for the current line
+            vector<double> row;     //temporary vector for the row
             string buffer;
 
-            while (s >> buffer) { // Parse each value in the line
-                row.push_back(stod(buffer)); // Convert string to double and add to row
+            while (s >> buffer) { //parse each value in the line
+                row.push_back(stod(buffer)); //convert string to double and add to row
             }
 
-            if (temp.empty()) { // First row determines the number of columns
+            if (temp.empty()) { //first row determines the number of columns
                 cols = row.size();
-            } else if (row.size() != cols) { // Check column consistency
+            } 
+            else if (row.size() != cols) { //check column consistency
                 cerr << "Error: Inconsistent number of columns at row " << temp.size() + 1 << "." << endl;
                 return;
             }
 
-            temp.push_back(row); // Add the row to the matrix
+            temp.push_back(row); //add the row to the matrix
         }
 
-        // Assign the temporary matrix to the class variable
+        //assign the temporary matrix to the class variable
         x = temp;
-        rows = temp.size(); // Set the number of rows
+        rows = temp.size(); //set the number of rows
 
     } else {
         cerr << "Error: Unable to open file " << filename << "." << endl;
@@ -280,7 +283,6 @@ void Matrix::inv(){  //calculates the inverse of the current matrix
         core.x[1][0] = -x[1][0]; // -c
         core.x[1][1] = x[0][0];  // a
 
-        // Scale by 1/determinant
         for (int m=0;m<2;m++){
             for (int n=0; n<2;n++) {
                 x[m][n]=(1/determinant) * core.x[m][n];
@@ -309,19 +311,24 @@ void Matrix::inv(){  //calculates the inverse of the current matrix
     }
 }
 
-
 void Matrix::gaus(){   //executes gaussian elimination 
     double pivot;
     double factor;
 
     for(int k=0;k<rows;k++){  //iterates for each diagonal
         if(x[k][k]==0){  //if pivot is 0 swap with row below
-
+            bool swapped = false;
             for(int i=k+1;i<rows;i++){  
                 if (x[i][k] != 0) {
                     swapRows(k, i); //swap the current row with row i
+                    swapped = true;
                     break;
                 }
+            }
+             if (!swapped){
+                cerr << "Matrix is singular or has dependent rows." << endl; 
+                cerr << "Gaussian elimination cannot proceed." << endl;
+                return; //stop processing
             }
         }
 
